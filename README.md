@@ -2,14 +2,14 @@
 
 ## Usage
 
-# Installation
+## Installation
 
 ```sh
 $ npm install
 
 ```
 
-# Serve
+## Serve
 
 ``` sh
 $ npm run start
