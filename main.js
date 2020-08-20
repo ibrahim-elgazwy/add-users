@@ -1,20 +1,27 @@
-let userTable = document.getElementById('user-table');
-let addUser = document.getElementById('add-user');
-let doubleMoney = document.getElementById('double-money');
-let showMillionairs = document.getElementById('show-Millionairs');
-let totalWealth = document.getElementById('calc');
-let sortUsers = document.getElementById('sort');
 let users = [];
 let totalUserWealth = 0;
 let checkCalc = false;
 
+let userTable = document.getElementById('user-table');
+let addUser = document.getElementById('add-user');
+let showAll = document.getElementById('show-all');
+let doubleMoney = document.getElementById('double-money');
+let showMillionairs = document.getElementById('show-Millionairs');
+let totalWealth = document.getElementById('calc');
+let sortUsers = document.getElementById('sort');
+
 addUser.addEventListener('click', addNewUser);
+showAll.addEventListener('click', showAllUsers);
 doubleMoney.addEventListener('click', doubleUserMoney);
 showMillionairs.addEventListener('click', showUserMillionairs);
 totalWealth.addEventListener('click', getTotalWealth);
 sortUsers.addEventListener('click', getSortUsers);
 
-function addUserInfo(){
+function addUserInfo(users){
+
+    if(users.length === 0){
+        return;
+    }
     let out = `
         <tr>
             <th>Person</th>
@@ -44,8 +51,11 @@ function addUserInfo(){
 }
 
 function addNewUser(){
-    debugger
-    checkCalc ? getTotalWealth() : createUser();
+    createUser();
+}
+
+function showAllUsers(){
+    addUserInfo(users);
 }
 
 function doubleUserMoney(){
@@ -53,16 +63,17 @@ function doubleUserMoney(){
         user.wealth = user.wealth *2;
         return user;
     });
-    checkCalc ? getTotalWealth() : addUserInfo();
+    checkCalc ? getTotalWealth() : addUserInfo(users);
 }
 
 function showUserMillionairs(){
-    users = users.filter(user => {
+    let newArr = [...users];
+    newArr = newArr.filter(user => {
         if(user.wealth > 1000000){
             return user;
         }
     });
-    checkCalc ? getTotalWealth() : addUserInfo();
+    checkCalc ? getTotalWealth() : addUserInfo(newArr);
 }
 
 function compare(a, b) {
@@ -81,7 +92,7 @@ function compare(a, b) {
 
 function getSortUsers(){
     users = users.sort(compare);
-    addUserInfo();
+    addUserInfo(users);
 }
 
 function getTotalWealth(){
@@ -90,18 +101,24 @@ function getTotalWealth(){
         totalUserWealth += user.wealth;
     });
     checkCalc = true;
-    addUserInfo();
+    addUserInfo(users);
 }
 
-function createUser(){
-    fetch('https://randomuser.me/api')
+function createUser(initate){
+    let url = 'https://randomuser.me/api';
+    if(initate){
+        url = 'https://randomuser.me/api/?results=5';
+    }
+    fetch(url)
     .then(res => res.json())
     .then(data => {
-        data.results[0].wealth = ((Math.random() * 10000000).toFixed(2)) - 200000;
+        for(let res of data.results){
+            res.wealth = ((Math.random() * 10000000).toFixed(2)) - 200000;
+        }
         users = users.concat(data.results);
-        addUserInfo();
+        checkCalc ? getTotalWealth() : addUserInfo(users);
     })
     .catch(err => console.log(err))
 }
 
-createUser();
+createUser(true);
